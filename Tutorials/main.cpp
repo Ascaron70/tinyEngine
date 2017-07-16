@@ -2,12 +2,9 @@
 
 int main() 
 {
-	LogStart("main()");
 
-		GlfwSetup glfwsetup;
-		glfwsetup.renderLoop();
-
-	LogEnd("main()");
+	GlfwSetup glfwsetup;
+	glfwsetup.renderLoop();
 
 	return 0;
 }
