@@ -37,77 +37,21 @@ GlfwSetup::GlfwSetup()
 	//this handles resizing of the window
 	glfwSetFramebufferSizeCallback(this->m_window, framebuffer_size_callback);
 
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) 
+	{
+		cout << "failed to initialize GLAD" << endl; 
+	}
 	
 	// outputs openGL related errors to the console
 	glfwSetErrorCallback(&LogGlfwError);
 
-	//SHADERS
-
-	// vertex shader program
-	vertexShaderSource =			"#version 330 core\n"
-									"layout (location = 0) in vec3 aPos;\n"
-									"layout (location = 1) in vec3 aColor;\n"
-									"out vec3 ourColor;\n"
-									"void main()\n"
-									"{\n"
-										"gl_Position = vec4(aPos, 1.0);\n"
-										"ourColor = aColor;\n"
-									"}\0";
-
-
-	fragmentShaderSource =			"#version 330 core\n"
-									"out vec4 FragColor;\n"
-									"in vec3 ourColor;\n"
-									"void main()\n"
-									"{\n"
-										"FragColor = vec4(ourColor, 1.0);\n"
-									"}\0";
-
-	//create the Vertex Shader and compile
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &ShadersSuccess);
-	if (!ShadersSuccess)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, ShaderCompileInfoLog);
-		cout << ShaderCompileInfoLog << endl << endl;
-	}
-
-	//create the Fragment Shader and compile
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &ShadersSuccess);
-	if (!ShadersSuccess)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, ShaderCompileInfoLog);
-		cout << ShaderCompileInfoLog << endl << endl;
-	}
-
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &ShadersSuccess);
-	if (!ShadersSuccess)
-	{
-		glGetProgramInfoLog(shaderProgram, 512, NULL, ShaderCompileInfoLog);
-		cout << ShaderCompileInfoLog << endl << endl;
-	}
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	ourShader = new Shader("vertexShader.vs", "fragmentShader.fs");
 
 	float triangleOne[] =
-	{	// position					//color
-		-0.01f, -0.95f, 0.0f,	1.0f, 0.0f, 0.0f,
-		-0.9f, -0.9f, 0.0f,		0.0f, 1.0f, 0.0f,
-		-0.9f, 0.9f, 0.0f,		0.0f, 0.0f, 1.0f
+	{	// position
+		0.0f, 0.5f, 0.0f,
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f
 	};
 
 	glGenBuffers(1, &VBO);
@@ -118,10 +62,8 @@ GlfwSetup::GlfwSetup()
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 			glBufferData(GL_ARRAY_BUFFER, sizeof(triangleOne), triangleOne, GL_STATIC_DRAW);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); //position Attribute
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); //color Attribute
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //position Attribute
 			glEnableVertexAttribArray(0);
-			glEnableVertexAttribArray(1);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -137,6 +79,9 @@ GlfwSetup::~GlfwSetup()
 
 void GlfwSetup::renderLoop()
 {
+	float xOffset = 0.0f;
+	bool goLeft = false, goRight = true;
+
 	while (!glfwWindowShouldClose(this->m_window))
 	{
 		//handle input every frame
@@ -145,7 +90,30 @@ void GlfwSetup::renderLoop()
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);			// set the color
 		glClear(GL_COLOR_BUFFER_BIT);					// clear the screen with the color set with glClearColor(r, g, b, a)
 
-		glUseProgram(shaderProgram);
+		ourShader->use();
+
+		int offsetLocation = glGetUniformLocation(ourShader->ID, "offset");
+		glUniform1f(offsetLocation, xOffset);
+
+		if(goRight) 
+		{
+			if(xOffset >= 0.5f) 
+			{
+				goLeft = true;
+				goRight = false;
+			}
+			xOffset += 0.00010;
+		}
+
+		if (goLeft)
+		{
+			if (xOffset <= -0.5f)
+			{
+				goLeft = false;
+				goRight = true;
+			}
+			xOffset -= 0.00010;
+		}
 
 		glBindVertexArray(VAO);
 
