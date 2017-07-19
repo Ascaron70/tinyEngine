@@ -18,6 +18,10 @@ private:
 
 	unsigned int VBO;
 	unsigned int VAO;
+	unsigned int EBO;
 
 	Shader* ourShader;
+
+	unsigned int texture, texture2;
+
 };

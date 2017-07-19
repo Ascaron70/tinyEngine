@@ -8,6 +8,8 @@
 #include <sstream>
 using namespace std;
 
+#include "stb_image.h"
+
 class Shader
 {
 public:
