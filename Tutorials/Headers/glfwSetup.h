@@ -22,6 +22,6 @@ private:
 
 	Shader* ourShader;
 
-	unsigned int texture, texture2;
+	unsigned int texture, texture2, hearth;
 
 };

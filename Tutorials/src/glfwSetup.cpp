@@ -29,7 +29,6 @@ void processInput(GLFWwindow* window)
 			alfa = 0.0f;
 		}
 	}
-	cout << alfa << endl;
 }
 
 static void LogGlfwError(int id, const char* description)
@@ -110,10 +109,10 @@ GlfwSetup::GlfwSetup()
 
 	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load("texture.jpg", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load("logo.png", &width, &height, &nrChannels, 0);
 	if (data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
@@ -143,10 +142,34 @@ GlfwSetup::GlfwSetup()
 	}
 	
 	stbi_image_free(data);
+	data = NULL;
+
+	glGenTextures(1, &hearth);
+	glBindTexture(GL_TEXTURE_2D, hearth);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	data = stbi_load("hearth.png", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		cout << "FAILED TO LOAD HEARTH TEXTURE" << endl;
+	}
+
+	stbi_image_free(data);
+	data = NULL;
 
 	ourShader->use();
 	ourShader->setInt("ourTexture", 0);
 	ourShader->setInt("ourTexture2", 1);
+	
+
 }
 
 GlfwSetup::~GlfwSetup() 
@@ -175,9 +198,26 @@ void GlfwSetup::renderLoop()
 
 		ourShader->setFloat("alfa", alfa);
 
-		ourShader->use();
+		glm::mat4 trans;
+
+		trans = glm::translate(trans, glm::vec3(0.5f, -0.45f, 0.0f));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+
+		unsigned int transformLoc = glGetUniformLocation(ourShader->ID, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
 		glBindVertexArray(VAO);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		trans = glm::mat4();
+
+		glBindTexture(GL_TEXTURE_2D, hearth);
+
+		trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+		float scaleAmount = sin(glfwGetTime()) / 2 + 0.6f;
+		trans = glm::scale(trans, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &trans[0][0]);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

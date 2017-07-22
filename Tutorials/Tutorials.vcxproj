@@ -73,6 +73,10 @@
     <IncludePath>C:\Users\Shagy\Documents\Visual Studio 2017\Projects\Tutorials\glfw-3.2.1.bin.WIN32\include;C:\Users\Shagy\Documents\Visual Studio 2017\Projects\Tutorials\GLAD\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Shagy\Documents\Visual Studio 2017\Projects\Tutorials\glfw-3.2.1.bin.WIN32\lib-vc2015;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Users\Shagy\Documents\Visual Studio 2017\Projects\Tutorials\GLAD\include;C:\Users\Shagy\Documents\Visual Studio 2017\Projects\Tutorials\glfw-3.2.1.bin.WIN32\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Shagy\Documents\Visual Studio 2017\Projects\Tutorials\glfw-3.2.1.bin.WIN32\lib-vc2015;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -104,6 +108,8 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
