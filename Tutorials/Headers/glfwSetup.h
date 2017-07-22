@@ -13,8 +13,8 @@ public:
 private:
 	GLFWwindow* m_window = nullptr;
 
-	const unsigned int SCREEN_WIDTH;
-	const unsigned int SCREEN_HEIGHT;
+	unsigned int SCREEN_WIDTH;
+	unsigned int SCREEN_HEIGHT;
 
 	unsigned int VBO;
 	unsigned int VAO;
